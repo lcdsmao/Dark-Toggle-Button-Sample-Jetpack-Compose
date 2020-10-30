@@ -3,7 +3,6 @@ package com.github.lcdsmao.darktoggle
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animate
 import androidx.compose.foundation.Text
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,8 +27,11 @@ fun App() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Spacer(modifier = Modifier.size(16.dp))
-                Text(text = "UiMode", style = MaterialTheme.typography.h3.copy(color = textColor))
+                Spacer(modifier = Modifier.size(32.dp))
+                Text(
+                    text = "UI Mode",
+                    style = MaterialTheme.typography.h3.copy(color = textColor),
+                )
                 Spacer(modifier = Modifier.size(16.dp))
 
                 val uiMode by UiModeAmbient.current
@@ -40,11 +42,9 @@ fun App() {
                     )
                 }
 
-                Box(modifier = Modifier.weight(1f)) {
-                    DarkToggleButton(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
+                DarkToggleButton(
+                    modifier = Modifier.align(Alignment.CenterHorizontally).weight(1f)
+                )
             }
         }
     }

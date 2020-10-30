@@ -144,7 +144,7 @@ private fun SunMoonIcon(
                 val cy = center.y - d * sin(radians)
                 drawCircle(
                     color = fillColor,
-                    radius = sizePx * 0.0625f,
+                    radius = sizePx * 0.055f,
                     center = Offset(cx.toFloat(), cy.toFloat()),
                     alpha = state[surroundCircleAlphas[i]],
                 )
