@@ -1,8 +1,8 @@
 package com.github.lcdsmao.darktoggle.ui
 
-import android.content.res.Configuration
 import androidx.compose.animation.animate
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
@@ -14,7 +14,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticAmbientOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ConfigurationAmbient
 
 private val DarkColorPalette = darkColors(
     primary = purple200,
@@ -52,13 +51,9 @@ val UiModeAmbient = staticAmbientOf<MutableState<UiMode>>()
 
 @Composable
 fun AppTheme(content: @Composable () -> Unit) {
-    val currentSystemUiMode =
-        ConfigurationAmbient.current.uiMode and Configuration.UI_MODE_NIGHT_MASK
+    val isSystemDark = isSystemInDarkTheme()
     val uiMode = remember {
-        mutableStateOf(
-            if (currentSystemUiMode == Configuration.UI_MODE_NIGHT_YES) UiMode.Dark
-            else UiMode.Default
-        )
+        mutableStateOf(if (isSystemDark) UiMode.Dark else UiMode.Default)
     }
     Providers(UiModeAmbient provides uiMode) {
         val colors = when (UiModeAmbient.current.value) {
@@ -80,9 +75,10 @@ private fun animate(colors: Colors): Colors {
     val animSpec = remember {
         spring<Color>(stiffness = 500f)
     }
-    val animateColor = @Composable { color: Color ->
-        animate(target = color, animSpec = animSpec)
-    }
+
+    @Composable
+    fun animateColor(color: Color): Color = animate(target = color, animSpec = animSpec)
+
     return Colors(
         primary = animateColor(colors.primary),
         primaryVariant = animateColor(colors.primaryVariant),
