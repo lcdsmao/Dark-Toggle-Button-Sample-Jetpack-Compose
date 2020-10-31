@@ -1,7 +1,6 @@
 package com.github.lcdsmao.darktoggle
 
 import androidx.compose.animation.core.FloatPropKey
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.transitionDefinition

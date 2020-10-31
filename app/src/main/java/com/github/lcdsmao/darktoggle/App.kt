@@ -1,7 +1,6 @@
 package com.github.lcdsmao.darktoggle
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.DecayAnimation
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
