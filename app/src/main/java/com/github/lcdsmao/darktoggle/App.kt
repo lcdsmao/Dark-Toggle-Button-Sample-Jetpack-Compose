@@ -51,7 +51,9 @@ fun App() {
                     spring<Float>(dampingRatio = dampingRatio, stiffness = stiffness)
                 }
                 DarkToggleButton(
-                    modifier = Modifier.align(Alignment.CenterHorizontally).weight(1f),
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                        .weight(1f)
+                        .size(120.dp),
                     springSpec = springSpec,
                 )
 

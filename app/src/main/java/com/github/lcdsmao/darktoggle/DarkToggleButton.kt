@@ -23,8 +23,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.withSaveLayer
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.github.lcdsmao.darktoggle.ui.UiMode
 import com.github.lcdsmao.darktoggle.ui.UiModeAmbient
 import kotlin.math.PI
@@ -34,7 +32,6 @@ import kotlin.math.sin
 @Composable
 fun DarkToggleButton(
     modifier: Modifier = Modifier,
-    size: Dp = 120.dp,
     springSpec: SpringSpec<Float> = remember { spring() },
 ) {
     var uiMode by UiModeAmbient.current
@@ -46,7 +43,7 @@ fun DarkToggleButton(
         )
     }
     OutlinedButton(
-        modifier = modifier.size(size),
+        modifier = modifier,
         onClick = { uiMode = uiMode.toggle() },
     ) {
         SunMoonIcon(uiMode, springSpec = realSpringSpec)
