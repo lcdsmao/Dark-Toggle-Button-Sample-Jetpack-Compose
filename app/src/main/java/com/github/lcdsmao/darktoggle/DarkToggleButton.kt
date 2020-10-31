@@ -1,18 +1,19 @@
 package com.github.lcdsmao.darktoggle
 
 import androidx.compose.animation.core.FloatPropKey
-import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.transition
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -34,13 +35,14 @@ import kotlin.math.sin
 fun DarkToggleButton(
     modifier: Modifier = Modifier,
     size: Dp = 120.dp,
+    springSpec: SpringSpec<Float> = remember { spring(dampingRatio = 0.5f, stiffness = 50f) },
 ) {
     var uiMode by UiModeAmbient.current
     OutlinedButton(
         modifier = modifier.size(size),
         onClick = { uiMode = uiMode.toggle() },
     ) {
-        SunMoonIcon(uiMode)
+        SunMoonIcon(uiMode, springSpec = springSpec)
     }
 }
 
@@ -53,7 +55,9 @@ private val circleRadiusRatio = FloatPropKey()
 private val surroundCircleScales = List(SurroundCircleNum) { FloatPropKey() }
 private val surroundCircleAlphas = List(SurroundCircleNum) { FloatPropKey() }
 
-private val transitionDefinition = transitionDefinition<UiMode> {
+private fun sunMoonTransition(
+    springSpec: SpringSpec<Float>,
+) = transitionDefinition<UiMode> {
     state(UiMode.Default) {
         this[rotation] = 180f
         this[maskCxRatio] = 1f
@@ -78,19 +82,14 @@ private val transitionDefinition = transitionDefinition<UiMode> {
         }
     }
 
-    val defaultSpring = spring<Float>(
-        dampingRatio = Spring.DampingRatioMediumBouncy,
-        stiffness = Spring.StiffnessLow,
-    )
-
     transition(
         UiMode.Dark to UiMode.Default,
     ) {
-        rotation using defaultSpring
-        maskCxRatio using defaultSpring
-        maskCyRatio using defaultSpring
-        maskRadiusRatio using defaultSpring
-        circleRadiusRatio using defaultSpring
+        rotation using springSpec
+        maskCxRatio using springSpec
+        maskCyRatio using springSpec
+        maskRadiusRatio using springSpec
+        circleRadiusRatio using springSpec
 
         repeat(SurroundCircleNum) {
             val tween = tween<Float>(delayMillis = it * 50)
@@ -102,11 +101,11 @@ private val transitionDefinition = transitionDefinition<UiMode> {
     transition(
         UiMode.Default to UiMode.Dark,
     ) {
-        rotation using defaultSpring
-        maskCxRatio using defaultSpring
-        maskCyRatio using defaultSpring
-        maskRadiusRatio using defaultSpring
-        circleRadiusRatio using defaultSpring
+        rotation using springSpec
+        maskCxRatio using springSpec
+        maskCyRatio using springSpec
+        maskRadiusRatio using springSpec
+        circleRadiusRatio using springSpec
     }
 }
 
@@ -115,10 +114,14 @@ private fun SunMoonIcon(
     uiMode: UiMode,
     modifier: Modifier = Modifier,
     fillColor: Color = MaterialTheme.colors.onSurface,
+    springSpec: SpringSpec<Float>,
 ) {
-    val state = transition(definition = transitionDefinition, toState = uiMode)
+    val state = transition(
+        definition = remember { sunMoonTransition(springSpec) },
+        toState = uiMode
+    )
     Canvas(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.aspectRatio(1f)
     ) {
         val sizePx = size.width
 
@@ -127,7 +130,6 @@ private fun SunMoonIcon(
             bounds = drawContext.size.toRect(),
             paint = Paint()
         ) {
-
             drawCircle(
                 color = fillColor,
                 radius = sizePx * state[circleRadiusRatio],
@@ -152,7 +154,7 @@ private fun SunMoonIcon(
                 val cy = center.y - d * sin(radians)
                 drawCircle(
                     color = fillColor,
-                    radius = sizePx * 0.055f,
+                    radius = sizePx * 0.05f,
                     center = Offset(cx.toFloat(), cy.toFloat()),
                     alpha = state[surroundCircleAlphas[i]],
                 )
