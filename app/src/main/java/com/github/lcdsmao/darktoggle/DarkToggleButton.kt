@@ -8,7 +8,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.transition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.runtime.Composable
@@ -23,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.withSaveLayer
+import androidx.ui.tooling.preview.Preview
 import com.github.lcdsmao.darktoggle.ui.UiMode
 import com.github.lcdsmao.darktoggle.ui.UiModeAmbient
 import kotlin.math.PI
@@ -46,8 +46,18 @@ fun DarkToggleButton(
         modifier = modifier,
         onClick = { uiMode = uiMode.toggle() },
     ) {
-        SunMoonIcon(uiMode, springSpec = realSpringSpec)
+        val sunMoonState = when (uiMode) {
+            UiMode.Default -> SunMoonState.Sun
+            UiMode.Dark -> SunMoonState.Moon
+        }
+        SunMoonIcon(sunMoonState, springSpec = realSpringSpec)
     }
+}
+
+private enum class SunMoonState {
+    Sun,
+    Moon,
+    ;
 }
 
 private const val SurroundCircleNum = 8
@@ -61,8 +71,8 @@ private val surroundCircleAlphas = List(SurroundCircleNum) { FloatPropKey() }
 
 private fun sunMoonTransition(
     springSpec: SpringSpec<Float>,
-) = transitionDefinition<UiMode> {
-    state(UiMode.Default) {
+) = transitionDefinition<SunMoonState> {
+    state(SunMoonState.Sun) {
         this[rotation] = 180f
         this[maskCxRatio] = 1f
         this[maskCyRatio] = 0f
@@ -74,7 +84,7 @@ private fun sunMoonTransition(
         }
     }
 
-    state(UiMode.Dark) {
+    state(SunMoonState.Moon) {
         this[rotation] = 45f
         this[maskCxRatio] = 0.5f
         this[maskCyRatio] = 0.18f
@@ -87,7 +97,7 @@ private fun sunMoonTransition(
     }
 
     transition(
-        UiMode.Dark to UiMode.Default,
+        SunMoonState.Moon to SunMoonState.Sun,
     ) {
         rotation using springSpec
         maskCxRatio using springSpec
@@ -104,7 +114,7 @@ private fun sunMoonTransition(
     }
 
     transition(
-        UiMode.Default to UiMode.Dark,
+        SunMoonState.Sun to SunMoonState.Moon,
     ) {
         rotation using springSpec
         maskCxRatio using springSpec
@@ -116,14 +126,14 @@ private fun sunMoonTransition(
 
 @Composable
 private fun SunMoonIcon(
-    uiMode: UiMode,
+    sunMoonState: SunMoonState,
     modifier: Modifier = Modifier,
-    fillColor: Color = MaterialTheme.colors.onSurface,
     springSpec: SpringSpec<Float>,
+    fillColor: Color = MaterialTheme.colors.onSurface,
 ) {
     val state = transition(
         definition = remember(springSpec) { sunMoonTransition(springSpec) },
-        toState = uiMode
+        toState = sunMoonState,
     )
     Canvas(
         modifier = modifier.aspectRatio(1f)
@@ -166,4 +176,16 @@ private fun SunMoonIcon(
             }
         }
     }
+}
+
+@Preview(widthDp = 64, heightDp = 64)
+@Composable
+fun PreviewSunIcon() {
+    SunMoonIcon(sunMoonState = SunMoonState.Sun, springSpec = spring())
+}
+
+@Preview(widthDp = 64, heightDp = 64)
+@Composable
+fun PreviewMoonIcon() {
+    SunMoonIcon(sunMoonState = SunMoonState.Moon, springSpec = spring())
 }

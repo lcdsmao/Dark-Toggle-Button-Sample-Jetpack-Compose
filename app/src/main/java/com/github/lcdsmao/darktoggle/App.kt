@@ -19,6 +19,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.ui.tooling.preview.Devices
+import androidx.ui.tooling.preview.Preview
 import com.github.lcdsmao.darktoggle.ui.AppTheme
 import com.github.lcdsmao.darktoggle.ui.UiModeAmbient
 
@@ -79,4 +81,10 @@ fun App() {
             }
         }
     }
+}
+
+@Preview(device = Devices.PIXEL_4)
+@Composable
+fun PreviewApp() {
+    App()
 }
