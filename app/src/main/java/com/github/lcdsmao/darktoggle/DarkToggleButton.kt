@@ -115,7 +115,6 @@ private fun SunMoonIcon(
     uiMode: UiMode,
     modifier: Modifier = Modifier,
     fillColor: Color = MaterialTheme.colors.onSurface,
-    surfaceColor: Color = MaterialTheme.colors.surface,
 ) {
     val state = transition(definition = transitionDefinition, toState = uiMode)
     Canvas(

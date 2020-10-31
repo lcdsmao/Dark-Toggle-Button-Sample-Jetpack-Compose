@@ -1,6 +1,9 @@
 package com.github.lcdsmao.darktoggle.ui
 
 import android.content.res.Configuration
+import androidx.compose.animation.animate
+import androidx.compose.animation.core.spring
+import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
@@ -10,6 +13,7 @@ import androidx.compose.runtime.Providers
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticAmbientOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ConfigurationAmbient
 
 private val DarkColorPalette = darkColors(
@@ -63,10 +67,35 @@ fun AppTheme(content: @Composable () -> Unit) {
         }
 
         MaterialTheme(
-            colors = colors,
+            colors = animate(colors),
             typography = typography,
             shapes = shapes,
             content = content
         )
     }
+}
+
+@Composable
+private fun animate(colors: Colors): Colors {
+    val animSpec = remember {
+        spring<Color>(stiffness = 500f)
+    }
+    val animateColor = @Composable { color: Color ->
+        animate(target = color, animSpec = animSpec)
+    }
+    return Colors(
+        primary = animateColor(colors.primary),
+        primaryVariant = animateColor(colors.primaryVariant),
+        secondary = animateColor(colors.secondary),
+        secondaryVariant = animateColor(colors.secondaryVariant),
+        background = animateColor(colors.background),
+        surface = animateColor(colors.surface),
+        error = animateColor(colors.error),
+        onPrimary = animateColor(colors.onPrimary),
+        onSecondary = animateColor(colors.onSecondary),
+        onBackground = animateColor(colors.onBackground),
+        onSurface = animateColor(colors.onSurface),
+        onError = animateColor(colors.onError),
+        isLight = colors.isLight,
+    )
 }

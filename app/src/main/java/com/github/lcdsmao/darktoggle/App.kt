@@ -1,7 +1,6 @@
 package com.github.lcdsmao.darktoggle
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.animate
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,9 +19,7 @@ import com.github.lcdsmao.darktoggle.ui.UiModeAmbient
 @Composable
 fun App() {
     AppTheme {
-        val surfaceColor = animate(target = MaterialTheme.colors.background)
-        val textColor = animate(target = MaterialTheme.colors.onSurface)
-        Surface(color = surfaceColor) {
+        Surface(color = MaterialTheme.colors.surface) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -30,7 +27,7 @@ fun App() {
                 Spacer(modifier = Modifier.size(32.dp))
                 Text(
                     text = "UI Mode",
-                    style = MaterialTheme.typography.h3.copy(color = textColor),
+                    style = MaterialTheme.typography.h3,
                 )
                 Spacer(modifier = Modifier.size(16.dp))
 
@@ -38,7 +35,7 @@ fun App() {
                 Crossfade(current = uiMode) {
                     Text(
                         text = uiMode.name,
-                        style = MaterialTheme.typography.h5.copy(color = textColor),
+                        style = MaterialTheme.typography.h5,
                     )
                 }
 
