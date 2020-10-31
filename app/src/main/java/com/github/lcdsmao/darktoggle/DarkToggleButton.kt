@@ -1,6 +1,7 @@
 package com.github.lcdsmao.darktoggle
 
 import androidx.compose.animation.core.FloatPropKey
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.transitionDefinition
@@ -99,7 +100,8 @@ private fun sunMoonTransition(
         circleRadiusRatio using springSpec
 
         repeat(SurroundCircleNum) {
-            val tween = tween<Float>(delayMillis = it * 50)
+            val delayUnit = (-springSpec.stiffness * 0.067f + 55).toInt().coerceIn(5, 50)
+            val tween = tween<Float>(delayMillis = it * delayUnit)
             surroundCircleAlphas[it] using tween
             surroundCircleScales[it] using tween
         }
@@ -163,7 +165,7 @@ private fun SunMoonIcon(
                     color = fillColor,
                     radius = sizePx * 0.05f,
                     center = Offset(cx.toFloat(), cy.toFloat()),
-                    alpha = state[surroundCircleAlphas[i]],
+                    alpha = state[surroundCircleAlphas[i]].coerceIn(0f, 1f),
                 )
             }
         }
