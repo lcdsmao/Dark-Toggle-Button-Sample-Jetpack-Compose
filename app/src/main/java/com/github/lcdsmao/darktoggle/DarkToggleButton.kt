@@ -35,14 +35,21 @@ import kotlin.math.sin
 fun DarkToggleButton(
     modifier: Modifier = Modifier,
     size: Dp = 120.dp,
-    springSpec: SpringSpec<Float> = remember { spring(dampingRatio = 0.5f, stiffness = 50f) },
+    springSpec: SpringSpec<Float> = remember { spring() },
 ) {
     var uiMode by UiModeAmbient.current
+    val realSpringSpec = remember(springSpec) {
+        spring(
+            dampingRatio = springSpec.dampingRatio,
+            stiffness = springSpec.stiffness,
+            visibilityThreshold = 0.002f,
+        )
+    }
     OutlinedButton(
         modifier = modifier.size(size),
         onClick = { uiMode = uiMode.toggle() },
     ) {
-        SunMoonIcon(uiMode, springSpec = springSpec)
+        SunMoonIcon(uiMode, springSpec = realSpringSpec)
     }
 }
 
@@ -117,7 +124,7 @@ private fun SunMoonIcon(
     springSpec: SpringSpec<Float>,
 ) {
     val state = transition(
-        definition = remember { sunMoonTransition(springSpec) },
+        definition = remember(springSpec) { sunMoonTransition(springSpec) },
         toState = uiMode
     )
     Canvas(
