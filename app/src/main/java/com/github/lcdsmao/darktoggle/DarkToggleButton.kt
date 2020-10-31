@@ -15,10 +15,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.drawLayer
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.toRect
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.withSaveLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.github.lcdsmao.darktoggle.ui.UiMode
@@ -116,25 +119,31 @@ private fun SunMoonIcon(
 ) {
     val state = transition(definition = transitionDefinition, toState = uiMode)
     Canvas(
-        modifier = modifier.fillMaxSize().drawLayer(rotationZ = state[rotation])
+        modifier = modifier.fillMaxSize()
     ) {
-
         val sizePx = size.width
 
-        drawCircle(
-            color = fillColor,
-            radius = sizePx * state[circleRadiusRatio],
-        )
+        drawContext.transform.rotate(state[rotation])
+        drawContext.canvas.withSaveLayer(
+            bounds = drawContext.size.toRect(),
+            paint = Paint()
+        ) {
 
-        drawCircle(
-            color = surfaceColor,
-            radius = sizePx * state[maskRadiusRatio],
-            center = Offset(
-                x = size.width * state[maskCxRatio],
-                y = size.height * state[maskCyRatio],
-            ),
-            // BlendMode.SRC_OUT not working properly?
-        )
+            drawCircle(
+                color = fillColor,
+                radius = sizePx * state[circleRadiusRatio],
+            )
+
+            drawCircle(
+                color = Color.Black,
+                radius = sizePx * state[maskRadiusRatio],
+                center = Offset(
+                    x = size.width * state[maskCxRatio],
+                    y = size.height * state[maskCyRatio],
+                ),
+                blendMode = BlendMode.DstOut,
+            )
+        }
 
         repeat(SurroundCircleNum) { i ->
             scale(scale = state[surroundCircleScales[i]]) {
