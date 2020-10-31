@@ -105,11 +105,11 @@ private fun sunMoonTransition(
         maskRadiusRatio using springSpec
         circleRadiusRatio using springSpec
 
-        repeat(SurroundCircleNum) {
+        repeat(SurroundCircleNum) { i ->
             val delayUnit = (-springSpec.stiffness * 0.067f + 55).toInt().coerceIn(5, 50)
-            val tween = tween<Float>(delayMillis = it * delayUnit)
-            surroundCircleAlphas[it] using tween
-            surroundCircleScales[it] using tween
+            val tween = tween<Float>(delayMillis = i * delayUnit)
+            surroundCircleAlphas[i] using tween
+            surroundCircleScales[i] using tween
         }
     }
 
