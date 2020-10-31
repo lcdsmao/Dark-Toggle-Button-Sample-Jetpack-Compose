@@ -1,6 +1,7 @@
 package com.github.lcdsmao.darktoggle
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.DecayAnimation
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
@@ -55,7 +56,7 @@ fun App() {
                     springSpec = springSpec,
                 )
 
-                Text("Damping Ratio")
+                Text("Damping Ratio: %.2f".format(dampingRatio))
                 Slider(
                     value = dampingRatio,
                     modifier = Modifier.padding(horizontal = 32.dp),
@@ -65,7 +66,7 @@ fun App() {
 
                 Spacer(modifier = Modifier.size(8.dp))
 
-                Text("Stiffness")
+                Text("Stiffness: %.0f".format(stiffness))
                 Slider(
                     value = stiffness,
                     modifier = Modifier.padding(horizontal = 32.dp),
