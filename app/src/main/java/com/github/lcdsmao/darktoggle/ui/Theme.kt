@@ -35,12 +35,12 @@ private val LightColorPalette = lightColors(
 
 enum class UiMode {
     Default,
-    Night,
+    Dark,
     ;
 
     fun toggle(): UiMode = when (this) {
-        Default -> Night
-        Night -> Default
+        Default -> Dark
+        Dark -> Default
     }
 }
 
@@ -52,14 +52,14 @@ fun AppTheme(content: @Composable () -> Unit) {
         ConfigurationAmbient.current.uiMode and Configuration.UI_MODE_NIGHT_MASK
     val uiMode = remember {
         mutableStateOf(
-            if (currentSystemUiMode == Configuration.UI_MODE_NIGHT_YES) UiMode.Night
+            if (currentSystemUiMode == Configuration.UI_MODE_NIGHT_YES) UiMode.Dark
             else UiMode.Default
         )
     }
     Providers(UiModeAmbient provides uiMode) {
         val colors = when (UiModeAmbient.current.value) {
             UiMode.Default -> LightColorPalette
-            UiMode.Night -> DarkColorPalette
+            UiMode.Dark -> DarkColorPalette
         }
 
         MaterialTheme(

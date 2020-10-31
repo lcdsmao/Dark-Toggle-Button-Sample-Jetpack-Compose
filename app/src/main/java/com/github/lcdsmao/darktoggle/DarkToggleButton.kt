@@ -66,7 +66,7 @@ private val transitionDefinition = transitionDefinition<UiMode> {
         }
     }
 
-    state(UiMode.Night) {
+    state(UiMode.Dark) {
         this[rotation] = 45f
         this[maskCxRatio] = 0.5f
         this[maskCyRatio] = 0.18f
@@ -84,7 +84,7 @@ private val transitionDefinition = transitionDefinition<UiMode> {
     )
 
     transition(
-        UiMode.Night to UiMode.Default,
+        UiMode.Dark to UiMode.Default,
     ) {
         rotation using defaultSpring
         maskCxRatio using defaultSpring
@@ -100,7 +100,7 @@ private val transitionDefinition = transitionDefinition<UiMode> {
     }
 
     transition(
-        UiMode.Default to UiMode.Night,
+        UiMode.Default to UiMode.Dark,
     ) {
         rotation using defaultSpring
         maskCxRatio using defaultSpring
