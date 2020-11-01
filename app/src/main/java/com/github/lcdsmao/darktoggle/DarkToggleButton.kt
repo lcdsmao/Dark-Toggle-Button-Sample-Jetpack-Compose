@@ -163,7 +163,7 @@ private fun SunMoonIcon(
 
         repeat(SurroundCircleNum) { i ->
             scale(scale = state[surroundCircleScales[i]]) {
-                val radians = PI / 2 - (i * PI) / 4
+                val radians = PI / 2 - i * 2 * PI / SurroundCircleNum
                 val d = sizePx / 3
                 val cx = center.x + d * cos(radians)
                 val cy = center.y - d * sin(radians)
