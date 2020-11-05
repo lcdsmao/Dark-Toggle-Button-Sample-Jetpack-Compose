@@ -2,7 +2,7 @@ package com.github.lcdsmao.darktoggle.ui
 
 import androidx.compose.animation.animate
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.isSystemInDarkTheme
+// import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
@@ -51,7 +51,8 @@ val UiModeAmbient = staticAmbientOf<MutableState<UiMode>>()
 
 @Composable
 fun AppTheme(content: @Composable () -> Unit) {
-    val isSystemDark = isSystemInDarkTheme()
+    // val isSystemDark = isSystemInDarkTheme()
+    val isSystemDark = false
     val uiMode = remember {
         mutableStateOf(if (isSystemDark) UiMode.Dark else UiMode.Default)
     }

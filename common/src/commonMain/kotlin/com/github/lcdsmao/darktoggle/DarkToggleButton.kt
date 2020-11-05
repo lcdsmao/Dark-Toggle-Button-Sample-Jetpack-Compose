@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.withSaveLayer
-import androidx.ui.tooling.preview.Preview
+// import androidx.ui.tooling.preview.Preview
 import com.github.lcdsmao.darktoggle.ui.UiMode
 import com.github.lcdsmao.darktoggle.ui.UiModeAmbient
 import kotlin.math.PI
@@ -178,14 +178,14 @@ private fun SunMoonIcon(
     }
 }
 
-@Preview(widthDp = 64, heightDp = 64)
-@Composable
-fun PreviewSunIcon() {
-    SunMoonIcon(sunMoonState = SunMoonState.Sun, springSpec = spring())
-}
-
-@Preview(widthDp = 64, heightDp = 64)
-@Composable
-fun PreviewMoonIcon() {
-    SunMoonIcon(sunMoonState = SunMoonState.Moon, springSpec = spring())
-}
+// @Preview(widthDp = 64, heightDp = 64)
+// @Composable
+// fun PreviewSunIcon() {
+//     SunMoonIcon(sunMoonState = SunMoonState.Sun, springSpec = spring())
+// }
+//
+// @Preview(widthDp = 64, heightDp = 64)
+// @Composable
+// fun PreviewMoonIcon() {
+//     SunMoonIcon(sunMoonState = SunMoonState.Moon, springSpec = spring())
+// }
