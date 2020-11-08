@@ -8,7 +8,7 @@ android {
     compileSdkVersion(30)
 
     defaultConfig {
-        // applicationId = "com.github.lcdsmao.darktoggle"
+        applicationId = "com.github.lcdsmao.darktoggle"
         minSdkVersion(21)
         targetSdkVersion(30)
         versionCode = 1
@@ -23,4 +23,5 @@ android {
 
 dependencies {
     implementation(project(":common"))
+    implementation("com.google.android.material:material:1.2.1")
 }
