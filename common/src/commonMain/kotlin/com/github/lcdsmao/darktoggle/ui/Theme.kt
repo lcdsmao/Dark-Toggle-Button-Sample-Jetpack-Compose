@@ -1,18 +1,18 @@
 package com.github.lcdsmao.darktoggle.ui
 
-import androidx.compose.animation.animate
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.spring
-// import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.Providers
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.staticAmbientOf
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorPalette = darkColors(
@@ -47,17 +47,18 @@ enum class UiMode {
     }
 }
 
-val UiModeAmbient = staticAmbientOf<MutableState<UiMode>>()
+val LocalUiMode = staticCompositionLocalOf<MutableState<UiMode>> {
+    error("UiMode not provided")
+}
 
 @Composable
 fun AppTheme(content: @Composable () -> Unit) {
-    // val isSystemDark = isSystemInDarkTheme()
-    val isSystemDark = false
+    val isSystemDark = isSystemInDarkTheme()
     val uiMode = remember {
         mutableStateOf(if (isSystemDark) UiMode.Dark else UiMode.Default)
     }
-    Providers(UiModeAmbient provides uiMode) {
-        val colors = when (UiModeAmbient.current.value) {
+    CompositionLocalProvider(LocalUiMode provides uiMode) {
+        val colors = when (LocalUiMode.current.value) {
             UiMode.Default -> LightColorPalette
             UiMode.Dark -> DarkColorPalette
         }
@@ -78,7 +79,7 @@ private fun animate(colors: Colors): Colors {
     }
 
     @Composable
-    fun animateColor(color: Color): Color = animate(target = color, animSpec = animSpec)
+    fun animateColor(color: Color): Color = animateColorAsState(targetValue = color, animationSpec = animSpec).value
 
     return Colors(
         primary = animateColor(colors.primary),

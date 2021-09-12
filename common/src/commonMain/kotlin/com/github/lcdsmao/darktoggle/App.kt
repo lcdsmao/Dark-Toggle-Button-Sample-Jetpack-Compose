@@ -1,7 +1,9 @@
 package com.github.lcdsmao.darktoggle
 
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,12 +21,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.format
-// import androidx.ui.tooling.preview.Devices
-// import androidx.ui.tooling.preview.Preview
 import com.github.lcdsmao.darktoggle.ui.AppTheme
-import com.github.lcdsmao.darktoggle.ui.UiModeAmbient
+import com.github.lcdsmao.darktoggle.ui.LocalUiMode
+import kotlin.math.roundToInt
 
+@ExperimentalAnimationApi
 @Composable
 fun App() {
     AppTheme {
@@ -40,10 +41,10 @@ fun App() {
                 )
                 Spacer(modifier = Modifier.size(16.dp))
 
-                val uiMode by UiModeAmbient.current
-                Crossfade(current = uiMode) {
+                val uiMode by LocalUiMode.current
+                AnimatedContent(targetState = uiMode) { targetUiMode ->
                     Text(
-                        text = uiMode.name,
+                        text = targetUiMode.name,
                         style = MaterialTheme.typography.h5,
                     )
                 }
@@ -53,14 +54,17 @@ fun App() {
                 val springSpec = remember(dampingRatio, stiffness) {
                     spring<Float>(dampingRatio = dampingRatio, stiffness = stiffness)
                 }
-                DarkToggleButton(
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                        .weight(1f)
-                        .size(120.dp),
-                    springSpec = springSpec,
-                )
 
-                Text("Damping Ratio: %.2f".format(dampingRatio))
+                Box(modifier = Modifier.weight(1f)) {
+                    DarkToggleButton(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(120.dp),
+                        springSpec = springSpec,
+                    )
+                }
+
+                Text("Damping Ratio: ${dampingRatio.roundToDecimals(2)}")
                 Slider(
                     value = dampingRatio,
                     modifier = Modifier.padding(horizontal = 32.dp),
@@ -70,7 +74,7 @@ fun App() {
 
                 Spacer(modifier = Modifier.size(8.dp))
 
-                Text("Stiffness: %.0f".format(stiffness))
+                Text("Stiffness: ${stiffness.roundToInt()}")
                 Slider(
                     value = stiffness,
                     modifier = Modifier.padding(horizontal = 32.dp),
@@ -84,8 +88,9 @@ fun App() {
     }
 }
 
-// @Preview(device = Devices.PIXEL_4)
-// @Composable
-// fun PreviewApp() {
-//     App()
-// }
+private fun Float.roundToDecimals(decimals: Int): Float {
+    var dotAt = 1
+    repeat(decimals) { dotAt *= 10 }
+    val roundedValue = (this * dotAt).roundToInt()
+    return (roundedValue / dotAt) + (roundedValue % dotAt).toFloat() / dotAt
+}

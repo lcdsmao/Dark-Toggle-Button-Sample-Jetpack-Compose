@@ -1,18 +1,16 @@
 buildscript {
-    val composeVersion = System.getenv("COMPOSE_TEMPLATE_COMPOSE_VERSION") ?: "0.1.0-m1-build62"
-    val kotlinVersion = "1.4.0"
+    val composeVersion = System.getenv("COMPOSE_TEMPLATE_COMPOSE_VERSION") ?: "1.0.0-alpha4-build328"
+    val kotlinVersion = "1.5.30"
 
     repositories {
-        // TODO: remove after new build is published
-        mavenLocal()
-        google()
-        jcenter()
+        mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        google()
     }
 
     dependencies {
         classpath("org.jetbrains.compose:compose-gradle-plugin:$composeVersion")
-        classpath("com.android.tools.build:gradle:4.1.0")
+        classpath("com.android.tools.build:gradle:4.1.3")
         classpath(kotlin("gradle-plugin", version = kotlinVersion))
     }
 }
@@ -20,7 +18,7 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }

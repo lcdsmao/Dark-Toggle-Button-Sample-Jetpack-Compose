@@ -1,16 +1,18 @@
 package com.github.lcdsmao.darktoggle
 
-import androidx.compose.animation.core.FloatPropKey
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.transition
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -22,9 +24,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.withSaveLayer
-// import androidx.ui.tooling.preview.Preview
+import com.github.lcdsmao.darktoggle.ui.LocalUiMode
 import com.github.lcdsmao.darktoggle.ui.UiMode
-import com.github.lcdsmao.darktoggle.ui.UiModeAmbient
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -34,7 +35,7 @@ fun DarkToggleButton(
     modifier: Modifier = Modifier,
     springSpec: SpringSpec<Float> = remember { spring() },
 ) {
-    var uiMode by UiModeAmbient.current
+    var uiMode by LocalUiMode.current
     val realSpringSpec = remember(springSpec) {
         spring(
             dampingRatio = springSpec.dampingRatio,
@@ -60,69 +61,121 @@ private enum class SunMoonState {
     ;
 }
 
-private const val SurroundCircleNum = 8
-private val rotation = FloatPropKey()
-private val maskCxRatio = FloatPropKey()
-private val maskCyRatio = FloatPropKey()
-private val maskRadiusRatio = FloatPropKey()
-private val circleRadiusRatio = FloatPropKey()
-private val surroundCircleScales = List(SurroundCircleNum) { FloatPropKey() }
-private val surroundCircleAlphas = List(SurroundCircleNum) { FloatPropKey() }
+private class SunMoonTransitionData(
+    rotation: State<Float>,
+    maskCxRatio: State<Float>,
+    maskCyRatio: State<Float>,
+    maskRadiusRatio: State<Float>,
+    circleRadiusRatio: State<Float>,
+    val surroundCircleScales: List<State<Float>>,
+    val surroundCircleAlphas: List<State<Float>>,
+) {
+    val rotation by rotation
+    val maskCxRatio by maskCxRatio
+    val maskCyRatio by maskCyRatio
+    val maskRadiusRatio by maskRadiusRatio
+    val circleRadiusRatio by circleRadiusRatio
+}
 
-private fun sunMoonTransition(
+@Composable
+private fun updateSunMoonTransitionData(
+    sunMoonState: SunMoonState,
     springSpec: SpringSpec<Float>,
-) = transitionDefinition<SunMoonState> {
-    state(SunMoonState.Sun) {
-        this[rotation] = 180f
-        this[maskCxRatio] = 1f
-        this[maskCyRatio] = 0f
-        this[maskRadiusRatio] = 0.125f
-        this[circleRadiusRatio] = 0.2f
-        repeat(SurroundCircleNum) {
-            this[surroundCircleScales[it]] = 1f
-            this[surroundCircleAlphas[it]] = 1f
+): SunMoonTransitionData {
+    val transition = updateTransition(sunMoonState, label = "SunMoonTransition")
+
+    val rotation = transition.animateFloat(
+        transitionSpec = { springSpec },
+        label = "rotation",
+    ) { state ->
+        when (state) {
+            SunMoonState.Sun -> 180f
+            SunMoonState.Moon -> 45f
+        }
+    }
+    val maskCxRatio = transition.animateFloat(
+        transitionSpec = { springSpec },
+        label = "maskCxRatio",
+    ) { state ->
+        when (state) {
+            SunMoonState.Sun -> 1f
+            SunMoonState.Moon -> 0.5f
+        }
+    }
+    val maskCyRatio = transition.animateFloat(
+        transitionSpec = { springSpec },
+        label = "maskCyRatio",
+    ) { state ->
+        when (state) {
+            SunMoonState.Sun -> 0f
+            SunMoonState.Moon -> 0.18f
+        }
+    }
+    val maskRadiusRatio = transition.animateFloat(
+        transitionSpec = { springSpec },
+        label = "maskRadiusRatio",
+    ) { state ->
+        when (state) {
+            SunMoonState.Sun -> 0.125f
+            SunMoonState.Moon -> 0.35f
+        }
+    }
+    val circleRadiusRatio = transition.animateFloat(
+        transitionSpec = { springSpec },
+        label = "circleRatisuRatio",
+    ) { state ->
+        when (state) {
+            SunMoonState.Sun -> 0.2f
+            SunMoonState.Moon -> 0.35f
         }
     }
 
-    state(SunMoonState.Moon) {
-        this[rotation] = 45f
-        this[maskCxRatio] = 0.5f
-        this[maskCyRatio] = 0.18f
-        this[maskRadiusRatio] = 0.35f
-        this[circleRadiusRatio] = 0.35f
-        repeat(SurroundCircleNum) {
-            this[surroundCircleScales[it]] = 0f
-            this[surroundCircleAlphas[it]] = 0f
-        }
-    }
-
-    transition(
-        SunMoonState.Moon to SunMoonState.Sun,
-    ) {
-        rotation using springSpec
-        maskCxRatio using springSpec
-        maskCyRatio using springSpec
-        maskRadiusRatio using springSpec
-        circleRadiusRatio using springSpec
-
-        repeat(SurroundCircleNum) { i ->
+    fun Transition.Segment<SunMoonState>.surroundTransitionSpec(i: Int): FiniteAnimationSpec<Float> {
+        return if (SunMoonState.Moon.isTransitioningTo(SunMoonState.Sun)) {
             val delayUnit = (-springSpec.stiffness * 0.067f + 55).toInt().coerceIn(5, 50)
-            val tween = tween<Float>(delayMillis = i * delayUnit)
-            surroundCircleAlphas[i] using tween
-            surroundCircleScales[i] using tween
+            tween(delayMillis = i * delayUnit)
+        } else {
+            springSpec
         }
     }
 
-    transition(
-        SunMoonState.Sun to SunMoonState.Moon,
-    ) {
-        rotation using springSpec
-        maskCxRatio using springSpec
-        maskCyRatio using springSpec
-        maskRadiusRatio using springSpec
-        circleRadiusRatio using springSpec
+    val surroundCircleScales = List(SurroundCircleNum) { i ->
+        transition.animateFloat(
+            transitionSpec = { surroundTransitionSpec(i) },
+            label = "surroundCirclesScale_$i",
+        ) { state ->
+            when (state) {
+                SunMoonState.Sun -> 1f
+                SunMoonState.Moon -> 0f
+            }
+        }
+    }
+    val surroundCircleAlphas = List(SurroundCircleNum) { i ->
+        transition.animateFloat(
+            transitionSpec = { surroundTransitionSpec(i) },
+            label = "surroundCircleAlphas_$i",
+        ) { state ->
+            when (state) {
+                SunMoonState.Sun -> 1f
+                SunMoonState.Moon -> 0f
+            }
+        }
+    }
+
+    return remember(transition) {
+        SunMoonTransitionData(
+            rotation = rotation,
+            maskCxRatio = maskCxRatio,
+            maskCyRatio = maskCyRatio,
+            maskRadiusRatio = maskRadiusRatio,
+            circleRadiusRatio = circleRadiusRatio,
+            surroundCircleScales = surroundCircleScales,
+            surroundCircleAlphas = surroundCircleAlphas,
+        )
     }
 }
+
+private const val SurroundCircleNum = 8
 
 @Composable
 private fun SunMoonIcon(
@@ -131,38 +184,35 @@ private fun SunMoonIcon(
     springSpec: SpringSpec<Float>,
     fillColor: Color = MaterialTheme.colors.onSurface,
 ) {
-    val state = transition(
-        definition = remember(springSpec) { sunMoonTransition(springSpec) },
-        toState = sunMoonState,
-    )
+    val transitionData = updateSunMoonTransitionData(sunMoonState, springSpec)
     Canvas(
         modifier = modifier.aspectRatio(1f)
     ) {
         val sizePx = size.width
 
-        drawContext.transform.rotate(state[rotation])
+        drawContext.transform.rotate(transitionData.rotation)
         drawContext.canvas.withSaveLayer(
             bounds = drawContext.size.toRect(),
             paint = Paint()
         ) {
             drawCircle(
                 color = fillColor,
-                radius = sizePx * state[circleRadiusRatio],
+                radius = sizePx * transitionData.circleRadiusRatio,
             )
 
             drawCircle(
                 color = Color.Black,
-                radius = sizePx * state[maskRadiusRatio],
+                radius = sizePx * transitionData.maskRadiusRatio,
                 center = Offset(
-                    x = size.width * state[maskCxRatio],
-                    y = size.height * state[maskCyRatio],
+                    x = size.width * transitionData.maskCxRatio,
+                    y = size.height * transitionData.maskCyRatio,
                 ),
                 blendMode = BlendMode.DstOut,
             )
         }
 
         repeat(SurroundCircleNum) { i ->
-            scale(scale = state[surroundCircleScales[i]]) {
+            scale(scale = transitionData.surroundCircleScales[i].value) {
                 val radians = PI / 2 - i * 2 * PI / SurroundCircleNum
                 val d = sizePx / 3
                 val cx = center.x + d * cos(radians)
@@ -171,21 +221,9 @@ private fun SunMoonIcon(
                     color = fillColor,
                     radius = sizePx * 0.05f,
                     center = Offset(cx.toFloat(), cy.toFloat()),
-                    alpha = state[surroundCircleAlphas[i]].coerceIn(0f, 1f),
+                    alpha = transitionData.surroundCircleAlphas[i].value.coerceIn(0f, 1f),
                 )
             }
         }
     }
 }
-
-// @Preview(widthDp = 64, heightDp = 64)
-// @Composable
-// fun PreviewSunIcon() {
-//     SunMoonIcon(sunMoonState = SunMoonState.Sun, springSpec = spring())
-// }
-//
-// @Preview(widthDp = 64, heightDp = 64)
-// @Composable
-// fun PreviewMoonIcon() {
-//     SunMoonIcon(sunMoonState = SunMoonState.Moon, springSpec = spring())
-// }
